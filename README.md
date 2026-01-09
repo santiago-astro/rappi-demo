@@ -1,45 +1,57 @@
-Overview
-========
+# DAG writing for data engineers and data scientists - webinar demo
 
-Welcome to Astronomer! This project was generated after you ran 'astro dev init' using the Astronomer CLI. This readme describes the contents of the project, as well as how to run Apache Airflow on your local machine.
+This repository contains the code for the webinar demo shown in DAG writing for data engineers and data scientists.
 
-Project Contents
-================
+[Watch the webinar here for free!](https://www.astronomer.io/events/webinars/dag-writing-for-data-engineers-and-data-scientists-video/)
 
-Your Astro project contains the following files and folders:
+## Content
 
-- dags: This folder contains the Python files for your Airflow DAGs. By default, this directory includes one example DAG:
-    - `example_astronauts`: This DAG shows a simple ETL pipeline example that queries the list of astronauts currently in space from the Open Notify API and prints a statement for each astronaut. The DAG uses the TaskFlow API to define tasks in Python, and dynamic task mapping to dynamically print a statement for each astronaut. For more on how this DAG works, see our [Getting started tutorial](https://www.astronomer.io/docs/learn/get-started-with-airflow).
-- Dockerfile: This file contains a versioned Astro Runtime Docker image that provides a differentiated Airflow experience. If you want to execute other commands or overrides at runtime, specify them here.
-- include: This folder contains any additional files that you want to include as part of your project. It is empty by default.
-- packages.txt: Install OS-level packages needed for your project by adding them to this file. It is empty by default.
-- requirements.txt: Install Python packages needed for your project by adding them to this file. It is empty by default.
-- plugins: Add custom or community plugins for your project to this file. It is empty by default.
-- airflow_settings.yaml: Use this local-only file to specify Airflow Connections, Variables, and Pools instead of entering them in the Airflow UI as you develop DAGs in this project.
+This repository contains:
 
-Deploy Your Project Locally
-===========================
+- A DAG showing bad Airflow practices [`dags/bad_examples/bad_dag.py`](dags/bad_examples/bad_dag.py).
+- A DAG showing how the bad DAG can be improved to use good Airflow practices [`dags/good_examples/good_dag.py`](dags/good_examples/good_dag.py).
+- A script to dynamically generate DAG files from a JSON config using the files in [`include/dynamic_dag_generation`](include/dynamic_dag_generation).
+- An example [CI/CD workflow](.github/workflows/deploy_to_astro.yaml) using GitHub Actions to test and deploy DAGs to [Astro](https://www.astronomer.io/try-astro).
 
-Start Airflow on your local machine by running 'astro dev start'.
+- A small functional data pipeline ingesting information about sales, customer feedback and customer data from a dog toy company. To learn how to run this pipeline, see the section below.
 
-This command will spin up five Docker containers on your machine, each for a different Airflow component:
+## How to run this repository
 
-- Postgres: Airflow's Metadata Database
-- Scheduler: The Airflow component responsible for monitoring and triggering tasks
-- DAG Processor: The Airflow component responsible for parsing DAGs
-- API Server: The Airflow component responsible for serving the Airflow UI and API
-- Triggerer: The Airflow component responsible for triggering deferred tasks
+1. Clone the repository.
+2. Make sure you have the [Astro CLI](https://docs.astronomer.io/astro/cli/install-cli) installed and that [Docker](https://www.docker.com/products/docker-desktop) is running.
+3. Copy the `.env.example` file to a new file called `.env` and fill in your Snowflake and AWS connection details.
+4. Create a new bucket in your AWS account with a folder called `ingest`.
+5. Copy the 3 folders containing once CSV each from [`include/data_generation/data/ingest`](include/data_generation/data/ingest) to the `ingest` folder in your bucket. You can generate more data by running the[`include/data_generation/generate_sample_data.py`](include/data_generation/generate_sample_data.py) script.
+6. Create a new databse in your Snowflake account called `HAPPYWOOFSDWH` with a schema called `HAPPYWOOFSDEV`.
+7. In your Snowflake account create 3 new stages in order to be able to run the `load_to_snowflake` DAG using the SQL below.
 
-When all five containers are ready the command will open the browser to the Airflow UI at http://localhost:8080/. You should also be able to access your Postgres Database at 'localhost:5432/postgres' with username 'postgres' and password 'postgres'.
+    ```sql
+    CREATE STAGE sales_reports_stage
+    URL = 's3://<your-bucket-name>/load/sales_reports/'
+    CREDENTIALS = (AWS_KEY_ID = '<your aws key id>' AWS_SECRET_KEY = '<your aws secret>')
+    FILE_FORMAT = (TYPE = 'CSV' FIELD_OPTIONALLY_ENCLOSED_BY = '"' SKIP_HEADER = 1);
 
-Note: If you already have either of the above ports allocated, you can either [stop your existing Docker containers or change the port](https://www.astronomer.io/docs/astro/cli/troubleshoot-locally#ports-are-not-available-for-my-local-airflow-webserver).
+    CREATE STAGE customer_feedback_stage
+    URL = 's3://<your-bucket-name>/load/customer_feedback/'
+    CREDENTIALS = (AWS_KEY_ID = '<your aws key id>' AWS_SECRET_KEY = '<your aws secret>')
+    FILE_FORMAT = (TYPE = 'CSV' FIELD_OPTIONALLY_ENCLOSED_BY = '"' SKIP_HEADER = 1);
 
-Deploy Your Project to Astronomer
-=================================
+    CREATE STAGE customer_data_stage
+    URL = 's3://<your-bucket-name>/load/customer_data/'
+    CREDENTIALS = (AWS_KEY_ID = '<your aws key id>' AWS_SECRET_KEY = '<your aws secret>')
+    FILE_FORMAT = (TYPE = 'CSV' FIELD_OPTIONALLY_ENCLOSED_BY = '"' SKIP_HEADER = 1);
+    ```
 
-If you have an Astronomer account, pushing code to a Deployment on Astronomer is simple. For deploying instructions, refer to Astronomer documentation: https://www.astronomer.io/docs/astro/deploy-code/
+8. In your Snowflake account create one new table called `TESTER_DOGS_TABLE` and fill it with the data from [`include/data_generation/data/dog_profiles.csv](include/data_generation/data/dog_profiles.csv).
+9. Run `astro dev start` to start the Airflow webserver and scheduler.
+10. Navigate to `localhost:8080` in your browser to see the Airflow UI.
+11. Unpause all DAGs. The first run of the `ingest` DAGs will automatically start and trigger downstream DAGs via [Datasets](https://docs.astronomer.io/learn/airflow-datasets).
 
-Contact
-=======
 
-The Astronomer CLI is maintained with love by the Astronomer team. To report a bug or suggest a change, reach out to our support.
+## Using `dag.test()`
+
+Before running `dag.test()` on DAGs that import modules from the `include` folder, you need to add the `include` folder to the `PYTHONPATH` environment variable. You can do this by running the following command in the terminal:
+
+```bash
+export PYTHONPATH="<absolute-path-to-your-astro-project>:$PYTHONPATH"
+```

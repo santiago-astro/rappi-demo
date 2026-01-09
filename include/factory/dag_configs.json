@@ -1,0 +1,34 @@
+[
+  {
+    "dag_id": "json_sales_pipeline",
+    "description": "Sales pipeline from JSON config",
+    "schedule": "@daily",
+    "tags": ["json-generated", "sales"],
+    "tasks": [
+      {"task_id": "extract", "command": "echo 'Extracting sales...'"},
+      {"task_id": "transform", "command": "echo 'Transforming sales...'"},
+      {"task_id": "load", "command": "echo 'Loading sales...'"}
+    ]
+  },
+  {
+    "dag_id": "json_inventory_pipeline",
+    "description": "Inventory pipeline from JSON config",
+    "schedule": "@hourly",
+    "tags": ["json-generated", "inventory"],
+    "tasks": [
+      {"task_id": "check_stock", "command": "echo 'Checking stock...'"},
+      {"task_id": "update_inventory", "command": "echo 'Updating inventory...'"}
+    ]
+  },
+  {
+    "dag_id": "json_analytics_pipeline",
+    "description": "Analytics pipeline from JSON config",
+    "schedule": "0 9 * * *",
+    "tags": ["json-generated", "analytics"],
+    "tasks": [
+      {"task_id": "collect_metrics", "command": "echo 'Collecting metrics...'"},
+      {"task_id": "analyze", "command": "echo 'Analyzing data...'"},
+      {"task_id": "visualize", "command": "echo 'Creating visualizations...'"} 
+    ]
+  }
+]
