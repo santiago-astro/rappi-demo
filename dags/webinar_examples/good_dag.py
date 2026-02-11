@@ -25,12 +25,12 @@ task_logger = logging.getLogger("airflow.task")
 
 # Set variables as env vars or at the start of the DAG file,
 # you want to change the DAG code as little as possible
-BASE_DATA_PATH = os.getenv("BASE_DATA_PATH", "include/data_generation/data/ingest/")
+BASE_DATA_PATH = os.getenv("BASE_DATA_PATH", "include/data_generation/data/ingest")
 IMPORT_PATH_CUSTOMER_FEEDBACK = (
-    f"{BASE_DATA_PATH}customer_feedback/customer_feedback3.csv"
+    f"{BASE_DATA_PATH}/customer_feedback/customer_feedback3.csv"
 )
-IMPORT_CUSTOMER_DATA = f"{BASE_DATA_PATH}customer_data/customer_data3.csv"
-IMPORT_PATH_SALES_REPORTS = f"{BASE_DATA_PATH}sales_reports/sales_reports3.csv"
+IMPORT_CUSTOMER_DATA = f"{BASE_DATA_PATH}/customer_data/customer_data3.csv"
+IMPORT_PATH_SALES_REPORTS = f"{BASE_DATA_PATH}/sales_reports/sales_reports3.csv"
 
 
 @dag(
