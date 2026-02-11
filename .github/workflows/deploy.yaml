@@ -3,7 +3,7 @@ name: Astronomer CI - Deploy code to Astro
 on:
   push:
     branches:
-      - demo/astro-essentials
+      - demo/dag-authoring
 
 env:
   ## Sets Deployment API key credentials as environment variables
