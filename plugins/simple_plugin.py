@@ -64,7 +64,7 @@ class SimpleDagActionView(AppBuilderBaseView):
             <div class="action-box">
                 <h2>Quick Links</h2>
                 <ul>
-                    <li><a href="/dags">View All DAGs</a></li>
+                    <li><a href="/home">View All DAGs</a></li>
                     <li><a href="/dagaction/test/my_dag">Test Action (example)</a></li>
                 </ul>
             </div>

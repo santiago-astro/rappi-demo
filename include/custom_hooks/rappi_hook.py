@@ -3,7 +3,7 @@ from typing import Optional
 import requests
 
 
-class BHPApiHook(BaseHook):
+class RappiApiHook(BaseHook):
     """
     Custom hook for interacting with a simple API.
     
@@ -150,7 +150,7 @@ class BHPApiHook(BaseHook):
             self.log.info("Connection closed")
 
 
-class BHPFileHook(BaseHook):
+class RappiFileHook(BaseHook):
     """
     Alternative simple hook for file operations.
     Demonstrates a different type of custom hook.

@@ -2,7 +2,7 @@ from airflow.operators.bash import BashOperator
 from airflow.utils.decorators import apply_defaults
 
 
-class BHPOperator(BashOperator):
+class RappiOperator(BashOperator):
     """
     Custom BashOperator with enhanced logging at each execution step.
     

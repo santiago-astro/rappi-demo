@@ -1,16 +1,17 @@
-from airflow import DAG
+from airflow import DAG, Dataset
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 
 # Import your custom operator
-from include.custom_operators.bhp_operator import BHPOperator
-from include.custom_hooks.bhp_hook import BHPApiHook, BHPFileHook
+from include.custom_operators.rappi_operator import RappiOperator
+from include.custom_hooks.rappi_hook import RappiApiHook, RappiFileHook
 
+sales_data_dataset = Dataset("file:///test_output.txt")
 
 def use_custom_api_hook():
     """Function that uses the custom API hook."""
     # Initialize the hook
-    hook = BHPApiHook(api_conn_id='http_default')  # Use existing http connection
+    hook = RappiApiHook(api_conn_id='http_default')  # Use existing http connection
     
     try:
         # Use the hook
@@ -30,7 +31,7 @@ def use_custom_api_hook():
 
 def use_custom_file_hook():
     """Function that uses the custom file hook."""
-    hook = BHPFileHook()
+    hook = RappiFileHook()
     
     # Write a test file
     hook.write_file('test_output.txt', 'Hello from custom hook!')
@@ -58,15 +59,15 @@ with DAG(
     # Test Custom Operator
     # ============================================
     
-    # Use the custom BHPOperator
-    custom_bash_task = BHPOperator(
+    # Use the custom RappiOperator
+    custom_bash_task = RappiOperator(
         task_id='custom_bash_with_logging',
-        bash_command='echo "Hello from custom operator!" && date && sleep 2',
+        bash_command='echo "Hello from custom operator! ds value is {{ ds }} and foo var value is {{ var.value.foo }}"',
         log_prefix="[MyCustomPrefix]",  # Custom parameter
     )
     
     # Another example with different command
-    custom_bash_task_2 = BHPOperator(
+    custom_bash_task_2 = RappiOperator(
         task_id='custom_bash_ls',
         bash_command='ls -la /tmp && echo "Directory listing complete"',
         log_prefix="[DirectoryCheck]",
@@ -84,6 +85,7 @@ with DAG(
     test_file_hook = PythonOperator(
         task_id='test_file_hook',
         python_callable=use_custom_file_hook,
+        outlets=[sales_data_dataset]
     )
     
     # ============================================
