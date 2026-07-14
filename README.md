@@ -1,6 +1,6 @@
 # DAG writing for data engineers and data scientists - webinar demo
 
-This repository contains the code for the webinar demo shown in DAG writing for data engineers and data scientists.
+This repository contains the code for the webinar demo shown in DAG writing for data engineers and data scientists!.
 
 [Watch the webinar here for free!](https://www.astronomer.io/events/webinars/dag-writing-for-data-engineers-and-data-scientists-video/)
 
