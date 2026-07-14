@@ -20,7 +20,7 @@ from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
     catchup=False,
     # during the webinar retries were missing which causes a test failure with astro dev pytest!!
     default_args={
-        # "retries": 3,
+        "retries": 3,
         "owner": "Avery",
     },
     params={
